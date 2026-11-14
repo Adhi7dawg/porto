@@ -118,16 +118,116 @@
 
       <!-- TAB ALBUMS -->
       <section class="panel tab-content" id="tabAlbums" style="display: none;">
-        <h2 style="margin-bottom: 14px;">Tambah Album Favorit</h2>
-        <form class="form-grid" id="albumForm" style="margin-bottom: 24px;">
-          <div class="field"><label>Judul Album</label><input type="text" id="aJudul" required></div>
-          <div class="field"><label>Artis</label><input type="text" id="aArtist" required></div>
-          <div class="field"><label>Cover URL / Path</label><input type="text" id="aCover" placeholder="imgalbm/cover.jpg" required></div>
-          <div class="field"><label>Deskripsi</label><textarea id="aDeskripsi" rows="2"></textarea></div>
-          <div class="field"><label>Tracklist (1 lagu per baris)</label><textarea id="aTracks" rows="4"></textarea></div>
-          <div class="field"><label>Link Spotify</label><input type="url" id="aSpotify" placeholder="https://open.spotify.com/..."></div>
-          <button type="submit" class="btn btn-primary">Simpan Album</button>
+        <div class="mb-wizard-header">
+          <div>
+            <h2 id="albumFormHeading">Tambah Album Favorit</h2>
+            <p style="font-size: 13px; color: var(--text-muted);">Cari metadata otomatis via MusicBrainz & Cover Art Archive, lalu sesuaikan edisi dan tracklist.</p>
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary btn-sm" id="btnStartAddAlbum">+ Add Album (MusicBrainz)</button>
+            <button type="button" class="btn btn-outline btn-sm" id="btnSkipToManual">Input Manual Langsung</button>
+          </div>
+        </div>
+
+        <!-- INDIKATOR LANGKAH -->
+        <div class="mb-steps" id="mbStepsBar" style="display: none;">
+          <span class="mb-step-pill active" id="stepPill1">1. Cari Album</span>
+          <span class="mb-step-pill" id="stepPill2">2. Pilih Edisi</span>
+          <span class="mb-step-pill" id="stepPill3">3. Review & Simpan</span>
+        </div>
+
+        <!-- STEP 1: PENCARIAN ALBUM MUSICBRAINZ -->
+        <div id="mbStepSearch" style="display: none; margin-bottom: 24px;">
+          <div class="mb-search-bar">
+            <input type="text" id="mbSearchInput" placeholder="Masukkan judul album atau nama artis (contoh: good kid m.A.A.d city)..." />
+            <button type="button" class="btn btn-primary btn-sm" id="mbSearchBtn">Cari di MusicBrainz</button>
+          </div>
+          <p id="mbSearchStatus" style="font-size: 13px; color: var(--text-muted); margin-top: 10px;"></p>
+          <div class="mb-results-grid" id="mbSearchResults"></div>
+        </div>
+
+        <!-- STEP 2: PILIH EDISI / RELEASE EDITION SELECTION -->
+        <div id="mbStepEditions" style="display: none; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div>
+              <strong id="mbSelectedGroupTitle" style="font-size: 16px;"></strong>
+              <p id="mbEditionsStatus" style="font-size: 13px; color: var(--text-muted);"></p>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm" id="btnBackToSearch">← Ganti Pencarian</button>
+          </div>
+          <div class="mb-edition-list" id="mbEditionsList"></div>
+        </div>
+
+        <!-- STEP 3: REVIEW & EDIT MANUAL SEBELUM SIMPAN -->
+        <form class="form-grid" id="albumForm" style="display: none; margin-bottom: 28px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+            <span class="eyebrow" style="margin-bottom: 0;" id="mbFormModeBadge">METADATA ALBUM & TRACKLIST</span>
+            <div class="btn-group">
+              <button type="button" class="btn btn-outline btn-sm" id="btnBackToEditions" style="display: none;">← Ganti Edisi</button>
+              <button type="button" class="btn btn-danger" id="btnCancelAlbumEdit">Batal</button>
+            </div>
+          </div>
+
+          <input type="hidden" id="aEditDocId" value="">
+          <input type="hidden" id="aMbReleaseId" value="">
+          <input type="hidden" id="aMbReleaseGroupId" value="">
+          <input type="hidden" id="aCoverSource" value="manual">
+
+          <!-- COVER ARTWORK EDITOR -->
+          <div class="field">
+            <label>Album Cover (Cover Art Archive / Upload Manual Prioritas)</label>
+            <div class="mb-cover-editor">
+              <img id="aCoverPreview" class="mb-cover-preview" src="imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg" alt="Preview Cover">
+              <div style="flex: 1; min-width: 220px; display: grid; gap: 10px;">
+                <div>
+                  <label style="font-size: 12px;">URL / Path Cover Saat Ini</label>
+                  <input type="text" id="aCover" placeholder="https://coverartarchive.org/... atau imgalbm/cover.jpg" required>
+                </div>
+                <div>
+                  <label style="font-size: 12px;">Upload Cover Manual (Diprioritaskan di atas Cover Art Archive)</label>
+                  <input type="file" id="aCoverFile" accept="image/*">
+                  <small id="aCoverUploadStatus" style="display: block; font-size: 12px; color: var(--text-muted); margin-top: 4px;"></small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Judul Album</label><input type="text" id="aJudul" required></div>
+            <div class="field"><label>Nama Artis</label><input type="text" id="aArtist" required></div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Edisi Album (Original / Deluxe / Remastered / Reissue)</label><input type="text" id="aEdition" placeholder="contoh: Original Release · CD"></div>
+            <div class="field"><label>Tanggal Rilis</label><input type="text" id="aReleaseDate" placeholder="YYYY-MM-DD"></div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Tipe Rilis</label><input type="text" id="aReleaseType" placeholder="Album / EP / Compilation"></div>
+            <div class="field"><label>Negara & Format Rilis</label><input type="text" id="aCountryFormat" placeholder="US · Vinyl / CD / Digital"></div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Rating Album Pribadi (0 - 5)</label><input type="number" id="aAlbumRating" min="0" max="5" step="0.5" value="0"></div>
+            <div class="field"><label>MusicBrainz Release ID (Referensi Eksternal)</label><input type="text" id="aMbReleaseIdDisplay" readonly placeholder="Otomatis terisi dari MusicBrainz"></div>
+          </div>
+
+          <div class="field"><label>Catatan / Deskripsi Album</label><textarea id="aDeskripsi" rows="2"></textarea></div>
+          <div class="field"><label>Link Spotify (Opsional)</label><input type="url" id="aSpotify" placeholder="https://open.spotify.com/..."></div>
+
+          <!-- TRACK MANAGEMENT EDITOR -->
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <label style="margin-bottom: 0;">Tracklist & Rating Pribadi per Lagu</label>
+              <button type="button" class="btn btn-outline btn-sm" id="btnAddManualTrack">+ Tambah Track Manual</button>
+            </div>
+            <div class="mb-track-editor-list" id="aTrackEditorList"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="btnSaveAlbumSubmit">Simpan Album ke Firestore</button>
         </form>
+
+        <h3 style="margin-bottom: 10px; font-size: 16px;">Koleksi Album Tersimpan</h3>
         <div id="adminAlbumList"></div>
       </section>
     </div>
@@ -142,8 +242,9 @@
   <script type="module">
     import { initNavbar } from "./js/ui.js";
     import { firebaseConfig, isFirebaseConfigured } from "./js/firebase-config.js";
-    import { getProfile, getProjects, getGallery, getAlbums } from "./js/data-service.js";
+    import { getProfile, getProjects, getGallery, getAlbums, normalizeAlbumTracks, uploadAlbumCoverToStorage } from "./js/data-service.js";
     import { DEFAULT_PROFILE, DEFAULT_PROJECTS, DEFAULT_GALLERY, DEFAULT_ALBUMS, DEFAULT_TRACKS } from "./js/default-data.js";
+    import { searchAlbumsMB, getAlbumEditionsMB, getReleaseDetailsMB, getCoverArtUrl } from "./js/musicbrainz-service.js";
 
     initNavbar();
 
@@ -158,7 +259,6 @@
       initFirebaseAdmin();
     }
 
-    // Tab switching
     document.querySelectorAll(".admin-tab").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".admin-tab").forEach(b => b.classList.remove("aktif"));
@@ -166,6 +266,244 @@
         btn.classList.add("aktif");
         document.getElementById(btn.dataset.tab).style.display = "block";
       });
+    });
+
+    const $ = id => document.getElementById(id);
+    let selectedGroup = null;
+    let selectedEditionId = "";
+
+    function setWizardStep(step) {
+      $("mbStepsBar").style.display = step ? "flex" : "none";
+      $("mbStepSearch").style.display = step === 1 ? "block" : "none";
+      $("mbStepEditions").style.display = step === 2 ? "block" : "none";
+      if (step !== 3) $("albumForm").style.display = "none";
+      [1, 2, 3].forEach(n => $("stepPill" + n).classList.toggle("active", n === step));
+    }
+
+    function showAlbumForm(mode = "manual") {
+      setWizardStep(mode === "musicbrainz" ? 3 : 0);
+      $("albumForm").style.display = "grid";
+      $("mbFormModeBadge").textContent = mode === "musicbrainz" ? "METADATA MUSICBRAINZ — SILAKAN REVIEW" : "INPUT ALBUM MANUAL";
+      $("btnBackToEditions").style.display = mode === "musicbrainz" ? "inline-flex" : "none";
+    }
+
+    function resetAlbumEditor() {
+      $("albumForm").reset();
+      $("aEditDocId").value = "";
+      $("aMbReleaseId").value = "";
+      $("aMbReleaseGroupId").value = "";
+      $("aMbReleaseIdDisplay").value = "";
+      $("aCoverSource").value = "manual";
+      $("aCoverPreview").src = "imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg";
+      $("aCoverUploadStatus").textContent = "";
+      $("aCoverFile").value = "";
+      $("aTrackEditorList").replaceChildren();
+      $("albumFormHeading").textContent = "Tambah Album Favorit";
+      $("btnSaveAlbumSubmit").textContent = "Simpan Album ke Firestore";
+      selectedGroup = null;
+      selectedEditionId = "";
+      setWizardStep(0);
+    }
+
+    function addTrackRow(track = {}) {
+      const row = document.createElement("div");
+      row.className = "mb-track-editor-row";
+      row.style.cssText = "display:grid;grid-template-columns:48px minmax(140px,2fr) minmax(90px,1fr) 100px auto;gap:8px;align-items:center;margin-top:8px;";
+      const number = document.createElement("span");
+      number.className = "mb-track-number";
+      number.textContent = String($("aTrackEditorList").children.length + 1);
+      const title = document.createElement("input");
+      title.type = "text";
+      title.className = "track-title";
+      title.placeholder = "Judul lagu";
+      title.value = track.title || track.judul || "";
+      title.required = true;
+      const duration = document.createElement("input");
+      duration.type = "text";
+      duration.className = "track-duration";
+      duration.placeholder = "Durasi (3:45)";
+      duration.value = track.duration || "";
+      const rating = document.createElement("input");
+      rating.type = "number";
+      rating.className = "track-rating";
+      rating.min = "0";
+      rating.max = "5";
+      rating.step = "0.5";
+      rating.value = typeof track.rating === "number" ? track.rating : 0;
+      rating.title = "Rating pribadi lagu (0–5)";
+      const recordingId = document.createElement("input");
+      recordingId.type = "hidden";
+      recordingId.className = "track-recording-id";
+      recordingId.value = track.recordingId || "";
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "btn btn-danger btn-sm";
+      remove.textContent = "Hapus";
+      remove.addEventListener("click", () => {
+        row.remove();
+        [...$("aTrackEditorList").children].forEach((el, idx) => {
+          const label = el.querySelector(".mb-track-number");
+          if (label) label.textContent = String(idx + 1);
+        });
+      });
+      row.append(number, title, duration, rating, remove, recordingId);
+      $("aTrackEditorList").appendChild(row);
+    }
+
+    function collectTracks() {
+      return [...$("aTrackEditorList").querySelectorAll(".mb-track-editor-row")].map((row, idx) => ({
+        number: idx + 1,
+        title: row.querySelector(".track-title").value.trim(),
+        duration: row.querySelector(".track-duration").value.trim(),
+        rating: Math.max(0, Math.min(5, Number(row.querySelector(".track-rating").value) || 0)),
+        recordingId: row.querySelector(".track-recording-id").value
+      })).filter(track => track.title);
+    }
+
+    $("btnStartAddAlbum").addEventListener("click", () => {
+      resetAlbumEditor();
+      $("mbSearchInput").value = "";
+      $("mbSearchStatus").textContent = "";
+      $("mbSearchResults").replaceChildren();
+      setWizardStep(1);
+      $("mbSearchInput").focus();
+    });
+    $("btnSkipToManual").addEventListener("click", () => {
+      resetAlbumEditor();
+      showAlbumForm("manual");
+    });
+    $("btnCancelAlbumEdit").addEventListener("click", resetAlbumEditor);
+    $("btnAddManualTrack").addEventListener("click", () => addTrackRow());
+    $("btnBackToSearch").addEventListener("click", () => setWizardStep(1));
+    $("btnBackToEditions").addEventListener("click", () => {
+      setWizardStep(2);
+      $("mbStepEditions").style.display = "block";
+    });
+    $("mbSearchInput").addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        $("mbSearchBtn").click();
+      }
+    });
+
+    $("mbSearchBtn").addEventListener("click", async () => {
+      const query = $("mbSearchInput").value.trim();
+      if (!query) {
+        $("mbSearchStatus").textContent = "Masukkan judul album atau nama artis terlebih dahulu.";
+        return;
+      }
+      $("mbSearchBtn").disabled = true;
+      $("mbSearchStatus").textContent = "Mencari album di MusicBrainz…";
+      $("mbSearchResults").replaceChildren();
+      try {
+        const results = await searchAlbumsMB(query);
+        $("mbSearchStatus").textContent = results.length ? `Ditemukan ${results.length} hasil. Pilih album yang sesuai.` : "Album tidak ditemukan.";
+        results.forEach(group => {
+          const card = document.createElement("div");
+          card.className = "mb-result-card";
+          const title = document.createElement("strong");
+          title.textContent = group.title;
+          const info = document.createElement("p");
+          info.textContent = `${group.artist} · ${group.firstReleaseDate || "Tanggal tidak diketahui"} · ${group.releaseType}`;
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "btn btn-outline btn-sm";
+          button.textContent = `Pilih (${group.releaseCount} edisi)`;
+          button.addEventListener("click", () => loadEditions(group));
+          card.append(title, info, button);
+          $("mbSearchResults").appendChild(card);
+        });
+      } catch (err) {
+        $("mbSearchStatus").textContent = `Pencarian gagal: ${err.message}`;
+      } finally {
+        $("mbSearchBtn").disabled = false;
+      }
+    });
+
+    async function loadEditions(group) {
+      selectedGroup = group;
+      $("mbSelectedGroupTitle").textContent = `${group.title} — ${group.artist}`;
+      $("mbEditionsStatus").textContent = "Memuat daftar edisi…";
+      $("mbEditionsList").replaceChildren();
+      setWizardStep(2);
+      try {
+        const editions = await getAlbumEditionsMB(group.releaseGroupId);
+        $("mbEditionsStatus").textContent = editions.length ? `${editions.length} edisi ditemukan. Pilih edisi untuk memuat tracklist.` : "Tidak ada edisi yang ditemukan.";
+        editions.forEach(edition => {
+          const item = document.createElement("div");
+          item.className = "mb-edition-item";
+          const info = document.createElement("div");
+          const title = document.createElement("strong");
+          title.textContent = edition.editionSummary || edition.title;
+          const detail = document.createElement("p");
+          detail.textContent = `${edition.date} · ${edition.trackCount} track · ${edition.label || "Label tidak diketahui"}`;
+          info.append(title, detail);
+          const choose = document.createElement("button");
+          choose.type = "button";
+          choose.className = "btn btn-primary btn-sm";
+          choose.textContent = "Pilih Edisi";
+          choose.addEventListener("click", () => loadReleaseIntoForm(edition));
+          item.append(info, choose);
+          $("mbEditionsList").appendChild(item);
+        });
+      } catch (err) {
+        $("mbEditionsStatus").textContent = `Gagal memuat edisi: ${err.message}`;
+      }
+    }
+
+    async function loadReleaseIntoForm(edition) {
+      selectedEditionId = edition.releaseId;
+      $("mbEditionsStatus").textContent = "Memuat detail album dan tracklist…";
+      try {
+        const detail = await getReleaseDetailsMB(edition.releaseId);
+        $("aJudul").value = detail.title || selectedGroup?.title || "";
+        $("aArtist").value = detail.artist || selectedGroup?.artist || "";
+        $("aEdition").value = edition.editionSummary || edition.title || "";
+        $("aReleaseDate").value = detail.releaseDate || "";
+        $("aReleaseType").value = detail.releaseType || "";
+        $("aCountryFormat").value = [edition.country, edition.format].filter(Boolean).join(" · ");
+        $("aMbReleaseId").value = detail.releaseId || edition.releaseId || "";
+        $("aMbReleaseGroupId").value = detail.releaseGroupId || selectedGroup?.releaseGroupId || "";
+        $("aMbReleaseIdDisplay").value = $("aMbReleaseId").value;
+        $("aCover").value = detail.coverUrl || "";
+        $("aCoverSource").value = "musicbrainz";
+        $("aCoverPreview").src = detail.coverUrl || "imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg";
+        $("aCoverUploadStatus").textContent = detail.coverUrl ? "Cover Art Archive; upload manual dapat menggantikannya." : "Cover tidak ditemukan di Cover Art Archive; silakan isi URL atau upload cover.";
+        $("aTrackEditorList").replaceChildren();
+        normalizeAlbumTracks(detail.tracks).forEach(addTrackRow);
+        $("mbEditionsStatus").textContent = "Edisi terpilih. Periksa dan sesuaikan detail sebelum menyimpan.";
+        showAlbumForm("musicbrainz");
+      } catch (err) {
+        $("mbEditionsStatus").textContent = `Gagal memuat detail release: ${err.message}`;
+      }
+    }
+
+    $("aCover").addEventListener("input", () => {
+      const value = $("aCover").value.trim();
+      $("aCoverSource").value = "manual";
+      $("aCoverPreview").src = value || "imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg";
+    });
+    $("aCoverPreview").addEventListener("error", () => {
+      $("aCoverPreview").src = "imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg";
+    });
+    $("aCoverFile").addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        $("aCoverUploadStatus").textContent = "Pilih file gambar yang valid.";
+        event.target.value = "";
+        return;
+      }
+      $("aCoverUploadStatus").textContent = "Mengunggah cover ke Firebase Storage…";
+      try {
+        const url = await uploadAlbumCoverToStorage(file);
+        $("aCover").value = url;
+        $("aCoverSource").value = "upload";
+        $("aCoverPreview").src = url;
+        $("aCoverUploadStatus").textContent = "Upload berhasil. Cover manual akan digunakan.";
+      } catch (err) {
+        $("aCoverUploadStatus").textContent = `Upload gagal: ${err.message}`;
+      }
     });
 
     async function initFirebaseAdmin() {
@@ -179,138 +517,160 @@
 
       document.getElementById("loginForm").addEventListener("submit", async e => {
         e.preventDefault();
-        const email = document.getElementById("loginEmail").value;
-        const pass = document.getElementById("loginPassword").value;
         try {
-          await signInWithEmailAndPassword(auth, email, pass);
+          await signInWithEmailAndPassword(auth, $("loginEmail").value, $("loginPassword").value);
         } catch (err) {
-          document.getElementById("loginStatus").textContent = "Login gagal: " + err.message;
+          $("loginStatus").textContent = "Login gagal: " + err.message;
         }
       });
-
-      document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+      $("logoutBtn").addEventListener("click", () => signOut(auth));
 
       onAuthStateChanged(auth, async user => {
         if (user) {
-          document.getElementById("loginPanel").style.display = "none";
-          document.getElementById("dashboardArea").style.display = "block";
-          document.getElementById("adminUserEmail").textContent = user.email;
+          $("loginPanel").style.display = "none";
+          $("dashboardArea").style.display = "block";
+          $("adminUserEmail").textContent = user.email;
           await loadAdminData(db, deleteDoc, doc);
         } else {
-          document.getElementById("loginPanel").style.display = "block";
-          document.getElementById("dashboardArea").style.display = "none";
+          $("loginPanel").style.display = "block";
+          $("dashboardArea").style.display = "none";
         }
       });
 
-      document.getElementById("seedDataBtn").addEventListener("click", async () => {
+      $("seedDataBtn").addEventListener("click", async () => {
         await setDoc(doc(db, "settings", "profile"), DEFAULT_PROFILE);
-        for (let i = 0; i < DEFAULT_PROJECTS.length; i++) {
-          await setDoc(doc(db, "projects", DEFAULT_PROJECTS[i].id), { ...DEFAULT_PROJECTS[i], order: i + 1 });
-        }
-        for (let i = 0; i < DEFAULT_GALLERY.length; i++) {
-          await setDoc(doc(db, "gallery", DEFAULT_GALLERY[i].id), { ...DEFAULT_GALLERY[i], order: i + 1 });
-        }
-        for (let i = 0; i < DEFAULT_ALBUMS.length; i++) {
-          await setDoc(doc(db, "albums", DEFAULT_ALBUMS[i].id), { ...DEFAULT_ALBUMS[i], order: i + 1 });
-        }
-        for (let i = 0; i < DEFAULT_TRACKS.length; i++) {
-          await setDoc(doc(db, "tracks", DEFAULT_TRACKS[i].id), { ...DEFAULT_TRACKS[i], order: i + 1 });
-        }
+        for (let i = 0; i < DEFAULT_PROJECTS.length; i++) await setDoc(doc(db, "projects", DEFAULT_PROJECTS[i].id), { ...DEFAULT_PROJECTS[i], order: i + 1 });
+        for (let i = 0; i < DEFAULT_GALLERY.length; i++) await setDoc(doc(db, "gallery", DEFAULT_GALLERY[i].id), { ...DEFAULT_GALLERY[i], order: i + 1 });
+        for (let i = 0; i < DEFAULT_ALBUMS.length; i++) await setDoc(doc(db, "albums", DEFAULT_ALBUMS[i].id), { ...DEFAULT_ALBUMS[i], order: i + 1 });
+        for (let i = 0; i < DEFAULT_TRACKS.length; i++) await setDoc(doc(db, "tracks", DEFAULT_TRACKS[i].id), { ...DEFAULT_TRACKS[i], order: i + 1 });
         alert("Seluruh data awal berhasil dimigrasikan ke Firestore!");
         await loadAdminData(db, deleteDoc, doc);
       });
 
-      document.getElementById("profileForm").addEventListener("submit", async e => {
+      $("profileForm").addEventListener("submit", async e => {
         e.preventDefault();
         await setDoc(doc(db, "settings", "profile"), {
-          nama: document.getElementById("pNama").value,
-          username: document.getElementById("pUsername").value,
-          tagline: document.getElementById("pTagline").value,
-          heroIntro: document.getElementById("pHeroIntro").value,
-          profilIntro: document.getElementById("pProfilIntro").value,
-          statusBadge: document.getElementById("pStatus").value,
-          sekolah: document.getElementById("pSekolah").value,
-          organisasi: document.getElementById("pOrganisasi").value,
-          domisili: document.getElementById("pDomisili").value,
-          highestRank: document.getElementById("pRank").value,
-          townHall: document.getElementById("pTh").value
+          nama: $("pNama").value, username: $("pUsername").value, tagline: $("pTagline").value,
+          heroIntro: $("pHeroIntro").value, profilIntro: $("pProfilIntro").value, statusBadge: $("pStatus").value,
+          sekolah: $("pSekolah").value, organisasi: $("pOrganisasi").value, domisili: $("pDomisili").value,
+          highestRank: $("pRank").value, townHall: $("pTh").value
         }, { merge: true });
         alert("Profil disimpan!");
       });
 
-      document.getElementById("projectForm").addEventListener("submit", async e => {
+      $("projectForm").addEventListener("submit", async e => {
         e.preventDefault();
         await addDoc(collection(db, "projects"), {
-          judul: document.getElementById("prJudul").value,
-          deskripsi: document.getElementById("prDeskripsi").value,
-          techStack: document.getElementById("prTech").value.split(",").map(s => s.trim()).filter(Boolean),
-          liveUrl: document.getElementById("prLive").value || "#",
-          repoUrl: document.getElementById("prRepo").value || "#",
-          order: Date.now()
+          judul: $("prJudul").value, deskripsi: $("prDeskripsi").value,
+          techStack: $("prTech").value.split(",").map(s => s.trim()).filter(Boolean),
+          liveUrl: $("prLive").value || "#", repoUrl: $("prRepo").value || "#", order: Date.now()
         });
         e.target.reset();
         await loadAdminData(db, deleteDoc, doc);
       });
 
-      document.getElementById("galleryForm").addEventListener("submit", async e => {
+      $("galleryForm").addEventListener("submit", async e => {
         e.preventDefault();
         await addDoc(collection(db, "gallery"), {
-          imageUrl: document.getElementById("gUrl").value,
-          caption: document.getElementById("gCaption").value,
-          date: document.getElementById("gDate").value,
-          order: Date.now()
+          imageUrl: $("gUrl").value, caption: $("gCaption").value, date: $("gDate").value, order: Date.now()
         });
         e.target.reset();
         await loadAdminData(db, deleteDoc, doc);
       });
 
-      document.getElementById("albumForm").addEventListener("submit", async e => {
+      $("albumForm").addEventListener("submit", async e => {
         e.preventDefault();
-        await addDoc(collection(db, "albums"), {
-          judul: document.getElementById("aJudul").value,
-          artist: document.getElementById("aArtist").value,
-          cover: document.getElementById("aCover").value,
-          deskripsi: document.getElementById("aDeskripsi").value,
-          tracks: document.getElementById("aTracks").value.split("\n").map(s => s.trim()).filter(Boolean),
-          spotify: document.getElementById("aSpotify").value || "#",
-          order: Date.now()
-        });
-        e.target.reset();
-        await loadAdminData(db, deleteDoc, doc);
+        const saveButton = $("btnSaveAlbumSubmit");
+        saveButton.disabled = true;
+        try {
+          const albumData = {
+            judul: $("aJudul").value.trim(), artist: $("aArtist").value.trim(), cover: $("aCover").value.trim(),
+            coverSource: $("aCoverSource").value || "manual", deskripsi: $("aDeskripsi").value.trim(),
+            edition: $("aEdition").value.trim(), releaseDate: $("aReleaseDate").value.trim(),
+            releaseType: $("aReleaseType").value.trim(), countryFormat: $("aCountryFormat").value.trim(),
+            rating: Math.max(0, Math.min(5, Number($("aAlbumRating").value) || 0)),
+            mbReleaseId: $("aMbReleaseId").value.trim(), mbReleaseGroupId: $("aMbReleaseGroupId").value.trim(),
+            tracks: collectTracks(), spotify: $("aSpotify").value.trim() || "#", order: Date.now()
+          };
+          const editId = $("aEditDocId").value;
+          if (editId) await setDoc(doc(db, "albums", editId), albumData, { merge: true });
+          else await addDoc(collection(db, "albums"), albumData);
+          resetAlbumEditor();
+          await loadAdminData(db, deleteDoc, doc);
+        } catch (err) {
+          alert(`Album gagal disimpan: ${err.message}`);
+        } finally {
+          saveButton.disabled = false;
+        }
       });
+    }
+
+    function editAlbum(album) {
+      resetAlbumEditor();
+      $("aEditDocId").value = album.id || "";
+      $("aJudul").value = album.judul || album.title || "";
+      $("aArtist").value = album.artist || "";
+      $("aCover").value = album.cover || album.coverUrl || "";
+      $("aCoverSource").value = album.coverSource || "manual";
+      $("aCoverPreview").src = $("aCover").value || "imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg";
+      $("aDeskripsi").value = album.deskripsi || album.description || "";
+      $("aEdition").value = album.edition || "";
+      $("aReleaseDate").value = album.releaseDate || "";
+      $("aReleaseType").value = album.releaseType || "";
+      $("aCountryFormat").value = album.countryFormat || "";
+      $("aAlbumRating").value = typeof album.rating === "number" ? album.rating : 0;
+      $("aMbReleaseId").value = album.mbReleaseId || "";
+      $("aMbReleaseGroupId").value = album.mbReleaseGroupId || "";
+      $("aMbReleaseIdDisplay").value = album.mbReleaseId || "";
+      $("aSpotify").value = album.spotify && album.spotify !== "#" ? album.spotify : "";
+      $("aTrackEditorList").replaceChildren();
+      normalizeAlbumTracks(album.tracks).forEach(addTrackRow);
+      $("albumFormHeading").textContent = "Edit Album";
+      $("btnSaveAlbumSubmit").textContent = "Simpan Perubahan";
+      showAlbumForm(album.mbReleaseId ? "musicbrainz" : "manual");
+      $("tabAlbums").scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     async function loadAdminData(db, deleteDoc, doc) {
       const p = await getProfile();
-      document.getElementById("pNama").value = p.nama || "";
-      document.getElementById("pUsername").value = p.username || "";
-      document.getElementById("pTagline").value = p.tagline || "";
-      document.getElementById("pHeroIntro").value = p.heroIntro || "";
-      document.getElementById("pProfilIntro").value = p.profilIntro || "";
-      document.getElementById("pStatus").value = p.statusBadge || "";
-      document.getElementById("pSekolah").value = p.sekolah || "";
-      document.getElementById("pOrganisasi").value = p.organisasi || "";
-      document.getElementById("pDomisili").value = p.domisili || "";
-      document.getElementById("pRank").value = p.highestRank || "";
-      document.getElementById("pTh").value = p.townHall || "";
+      $("pNama").value = p.nama || "";
+      $("pUsername").value = p.username || "";
+      $("pTagline").value = p.tagline || "";
+      $("pHeroIntro").value = p.heroIntro || "";
+      $("pProfilIntro").value = p.profilIntro || "";
+      $("pStatus").value = p.statusBadge || "";
+      $("pSekolah").value = p.sekolah || "";
+      $("pOrganisasi").value = p.organisasi || "";
+      $("pDomisili").value = p.domisili || "";
+      $("pRank").value = p.highestRank || "";
+      $("pTh").value = p.townHall || "";
 
-      const renderList = (elId, items, colName, labelFn) => {
-        const wrap = document.getElementById(elId);
-        wrap.innerHTML = "";
+      const renderList = (elId, items, colName, labelFn, albumActions = false) => {
+        const wrap = $(elId);
+        wrap.replaceChildren();
         items.forEach(item => {
           const row = document.createElement("div");
           row.className = "admin-list-item";
           const span = document.createElement("span");
           span.textContent = labelFn(item);
+          row.appendChild(span);
+          if (albumActions) {
+            const edit = document.createElement("button");
+            edit.type = "button";
+            edit.className = "btn btn-outline btn-sm";
+            edit.textContent = "Edit";
+            edit.addEventListener("click", () => editAlbum(item));
+            row.appendChild(edit);
+          }
           const del = document.createElement("button");
           del.type = "button";
           del.className = "btn btn-danger";
           del.textContent = "Hapus";
           del.addEventListener("click", async () => {
+            if (!confirm(`Hapus ${labelFn(item)}?`)) return;
             await deleteDoc(doc(db, colName, item.id));
             await loadAdminData(db, deleteDoc, doc);
           });
-          row.appendChild(span);
           row.appendChild(del);
           wrap.appendChild(row);
         });
@@ -318,7 +678,7 @@
 
       renderList("adminProjectList", await getProjects(), "projects", i => i.judul);
       renderList("adminGalleryList", await getGallery(), "gallery", i => `${i.caption} (${i.date || "-"})`);
-      renderList("adminAlbumList", await getAlbums(), "albums", i => `${i.judul} — ${i.artist}`);
+      renderList("adminAlbumList", await getAlbums(), "albums", i => `${i.judul || i.title || "Album tanpa judul"} — ${i.artist || "Artis tidak diketahui"}`, true);
     }
   </script>
 </body>
