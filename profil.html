@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil | Adhi Sasongko</title>
+  <link rel="icon" type="image/png" href="images/Untitled39_20261108173618.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="brand">ADHI SASONGKO</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="profil.html" class="nav-link aktif">Profil</a>
+        <a href="projects.html" class="nav-link">Proyek</a>
+        <a href="gallery.html" class="nav-link">Galeri</a>
+        <a href="albums.html" class="nav-link">Albums</a>
+        <a href="admin.html" class="nav-link nav-link-admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container container-narrow page-wrap">
+    <p class="eyebrow">01 / TENTANG SAYA</p>
+    <h1 class="serif-title page-title">Profil <span class="accent-text">Pribadi.</span></h1>
+    <p class="lead" id="profilIntro">
+      Catatan singkat mengenai latar belakang pendidikan, aktivitas organisasi, serta minat di dunia teknologi dan gim.
+    </p>
+
+    <section class="profile-banner">
+      <img src="foto.jpg" alt="Foto Adhi Sasongko" class="profile-avatar" id="profilFoto">
+      <div class="profile-meta">
+        <h2 id="profilNama">Adhi Sasongko</h2>
+        <p class="sub" id="profilTagline">Pelajar · Dewan Ambalan</p>
+        <span class="status-badge"><i></i> <span id="profilStatus">Terus Belajar</span></span>
+      </div>
+    </section>
+
+    <section class="info-list">
+      <dl>
+        <div class="info-row"><dt>Nama Lengkap</dt><dd id="infoNama">Adhi Sasongko</dd></div>
+        <div class="info-row"><dt>Username</dt><dd id="infoUsername">Adhi7dawg</dd></div>
+        <div class="info-row"><dt>Sekolah</dt><dd id="infoSekolah">SMK Tamtama 1 Sidareja</dd></div>
+        <div class="info-row"><dt>Organisasi</dt><dd id="infoOrganisasi">Dewan Ambalan</dd></div>
+        <div class="info-row"><dt>Domisili</dt><dd id="infoDomisili">Cilacap, Jawa Tengah</dd></div>
+        <div class="info-row"><dt>Highest Rank (MLBB)</dt><dd id="infoRank">Mythical Immortal 111</dd></div>
+        <div class="info-row"><dt>Town Hall (CoC)</dt><dd id="infoTh">15</dd></div>
+      </dl>
+    </section>
+
+    <div class="btn-group">
+      <a href="index.html" class="btn btn-outline">← Beranda</a>
+      <a href="projects.html" class="btn btn-primary">Lihat Proyek →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initNavbar, setText } from "./js/ui.js";
+    import { getProfile } from "./js/data-service.js";
+
+    initNavbar();
+    const p = await getProfile();
+    setText("profilIntro", p.profilIntro);
+    setText("profilNama", p.nama);
+    setText("profilTagline", p.tagline);
+    setText("profilStatus", p.statusBadge);
+    setText("infoNama", p.nama);
+    setText("infoUsername", p.username);
+    setText("infoSekolah", p.sekolah);
+    setText("infoOrganisasi", p.organisasi);
+    setText("infoDomisili", p.domisili);
+    setText("infoRank", p.highestRank);
+    setText("infoTh", p.townHall);
+    if (p.fotoUrl) document.getElementById("profilFoto").src = p.fotoUrl;
+  </script>
+</body>
+</html>

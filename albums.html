@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Albums & Tracks | Adhi Sasongko</title>
+  <link rel="icon" type="image/png" href="images/Untitled39_20261108173618.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="brand">ADHI SASONGKO</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="profil.html" class="nav-link">Profil</a>
+        <a href="projects.html" class="nav-link">Proyek</a>
+        <a href="gallery.html" class="nav-link">Galeri</a>
+        <a href="albums.html" class="nav-link aktif">Albums</a>
+        <a href="admin.html" class="nav-link nav-link-admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page-wrap">
+    <p class="eyebrow">04 / MUSIC</p>
+    <h1 class="serif-title page-title">Albums & <span class="accent-text">Tracks.</span></h1>
+    <p class="lead">Daftar album dan lagu pilihan yang sedang sering diputar.</p>
+
+    <section class="album-grid" id="albumGrid"></section>
+
+    <h2 class="sub-judul">Top Tracks</h2>
+    <section class="track-list" id="trackList"></section>
+
+    <a href="index.html" class="btn btn-outline">← Kembali ke Beranda</a>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
+    </div>
+  </footer>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mJudul">
+    <div class="modal-isi">
+      <button class="modal-tutup" id="mTutup" aria-label="Tutup">✕</button>
+      <img class="modal-cover" id="mCover" src="" alt="">
+      <h2 id="mJudul"></h2>
+      <p class="modal-artist" id="mArtist"></p>
+      <p class="modal-deskripsi" id="mDeskripsi"></p>
+      <div id="mTrackWrap">
+        <h3>Tracklist</h3>
+        <ol class="tracklist" id="mTracks"></ol>
+      </div>
+      <a class="btn btn-spotify" id="mSpotify" href="#" target="_blank" rel="noopener">Dengarkan di Spotify</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initNavbar } from "./js/ui.js";
+    import { getAlbums, getTracks } from "./js/data-service.js";
+
+    initNavbar();
+
+    const albums = await getAlbums();
+    const topTracks = await getTracks();
+
+    const grid = document.getElementById("albumGrid");
+    const daftarTrack = document.getElementById("trackList");
+    const modal = document.getElementById("modal");
+    let terakhirFokus = null;
+
+    function buatItem(data, kelas, kelasInfo, panah) {
+      const tombol = document.createElement("button");
+      tombol.className = kelas;
+      tombol.type = "button";
+      tombol.innerHTML =
+        '<img src="' + data.cover + '" alt="Cover ' + data.judul + '" loading="lazy">' +
+        '<div class="' + kelasInfo + '"><strong></strong><span></span></div>' +
+        (panah ? '<span class="track-panah" aria-hidden="true">›</span>' : "");
+      tombol.querySelector("strong").textContent = data.judul;
+      tombol.querySelector("." + kelasInfo + " span").textContent = data.artist;
+      tombol.addEventListener("click", () => buka(data, tombol));
+      return tombol;
+    }
+
+    albums.forEach(a => grid.appendChild(buatItem(a, "album-item", "album-info", false)));
+    topTracks.forEach(t => daftarTrack.appendChild(buatItem(t, "track-item", "track-info", true)));
+
+    function buka(a, pemicu) {
+      terakhirFokus = pemicu;
+      document.getElementById("mCover").src = a.cover;
+      document.getElementById("mCover").alt = "Cover " + a.judul;
+      document.getElementById("mJudul").textContent = a.judul;
+      document.getElementById("mArtist").textContent = a.artist;
+      document.getElementById("mDeskripsi").textContent = a.deskripsi;
+      document.getElementById("mSpotify").href = a.spotify;
+      const ol = document.getElementById("mTracks");
+      ol.innerHTML = "";
+      const adaTracks = Array.isArray(a.tracks) && a.tracks.length > 0;
+      document.getElementById("mTrackWrap").style.display = adaTracks ? "" : "none";
+      if (adaTracks) {
+        a.tracks.forEach(t => {
+          const li = document.createElement("li");
+          li.textContent = t;
+          ol.appendChild(li);
+        });
+      }
+      modal.classList.add("tampil");
+      document.body.style.overflow = "hidden";
+      document.getElementById("mTutup").focus();
+    }
+
+    function tutup() {
+      modal.classList.remove("tampil");
+      document.body.style.overflow = "";
+      if (terakhirFokus) terakhirFokus.focus();
+    }
+
+    document.getElementById("mTutup").addEventListener("click", tutup);
+    modal.addEventListener("click", e => { if (e.target === modal) tutup(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") tutup(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Adhi Sasongko</title>
+  <link rel="icon" type="image/png" href="images/Untitled39_20261108173618.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="brand">ADHI SASONGKO</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="profil.html" class="nav-link">Profil</a>
+        <a href="projects.html" class="nav-link">Proyek</a>
+        <a href="gallery.html" class="nav-link">Galeri</a>
+        <a href="albums.html" class="nav-link">Albums</a>
+        <a href="admin.html" class="nav-link aktif nav-link-admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container container-narrow page-wrap">
+    <p class="eyebrow">CMS / ADMIN PANEL</p>
+    <h1 class="serif-title page-title">Kelola <span class="accent-text">Konten.</span></h1>
+
+    <div class="notice" id="configNotice">
+      Memeriksa status konfigurasi Firebase di <code>js/firebase-config.js</code>...
+    </div>
+
+    <!-- LOGIN SECTION -->
+    <section class="panel" id="loginPanel">
+      <h2 style="margin-bottom: 14px;">Login Administrator</h2>
+      <form class="form-grid" id="loginForm">
+        <div class="field">
+          <label for="loginEmail">Email Admin</label>
+          <input type="email" id="loginEmail" placeholder="admin@email.com" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Masuk Dashboard</button>
+      </form>
+      <p id="loginStatus" style="margin-top: 12px; font-size: 13px; color: var(--danger);"></p>
+    </section>
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboardArea" style="display: none;">
+      <div class="panel" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <strong id="adminUserEmail">Admin</strong>
+          <p style="font-size: 13px; color: var(--text-muted);">Terhubung ke Firestore</p>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-outline btn-sm" id="seedDataBtn">Migrasi Data Awal ke Firestore</button>
+          <button type="button" class="btn btn-danger" id="logoutBtn">Keluar</button>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button type="button" class="admin-tab aktif" data-tab="tabProfile">Profil</button>
+        <button type="button" class="admin-tab" data-tab="tabProjects">Proyek</button>
+        <button type="button" class="admin-tab" data-tab="tabGallery">Galeri</button>
+        <button type="button" class="admin-tab" data-tab="tabAlbums">Albums & Tracks</button>
+      </div>
+
+      <!-- TAB PROFIL -->
+      <section class="panel tab-content" id="tabProfile">
+        <h2 style="margin-bottom: 14px;">Edit Profil</h2>
+        <form class="form-grid" id="profileForm">
+          <div class="field"><label>Nama</label><input type="text" id="pNama" required></div>
+          <div class="field"><label>Username</label><input type="text" id="pUsername"></div>
+          <div class="field"><label>Tagline</label><input type="text" id="pTagline"></div>
+          <div class="field"><label>Intro Beranda</label><textarea id="pHeroIntro" rows="2"></textarea></div>
+          <div class="field"><label>Intro Profil</label><textarea id="pProfilIntro" rows="2"></textarea></div>
+          <div class="field"><label>Status Badge</label><input type="text" id="pStatus"></div>
+          <div class="field"><label>Sekolah</label><input type="text" id="pSekolah"></div>
+          <div class="field"><label>Organisasi</label><input type="text" id="pOrganisasi"></div>
+          <div class="field"><label>Domisili</label><input type="text" id="pDomisili"></div>
+          <div class="field"><label>Highest Rank</label><input type="text" id="pRank"></div>
+          <div class="field"><label>Town Hall</label><input type="text" id="pTh"></div>
+          <button type="submit" class="btn btn-primary">Simpan Profil</button>
+        </form>
+      </section>
+
+      <!-- TAB PROJECTS -->
+      <section class="panel tab-content" id="tabProjects" style="display: none;">
+        <h2 style="margin-bottom: 14px;">Tambah Proyek Coding</h2>
+        <form class="form-grid" id="projectForm" style="margin-bottom: 24px;">
+          <div class="field"><label>Judul Proyek</label><input type="text" id="prJudul" required></div>
+          <div class="field"><label>Deskripsi</label><textarea id="prDeskripsi" rows="2" required></textarea></div>
+          <div class="field"><label>Tech Stack (pisahkan dengan koma)</label><input type="text" id="prTech" placeholder="HTML, CSS, JS, Firebase"></div>
+          <div class="field"><label>Live Demo URL</label><input type="text" id="prLive" placeholder="https://..."></div>
+          <div class="field"><label>GitHub Repo URL</label><input type="text" id="prRepo" placeholder="https://github.com/..."></div>
+          <button type="submit" class="btn btn-primary">Tambah Proyek</button>
+        </form>
+        <div id="adminProjectList"></div>
+      </section>
+
+      <!-- TAB GALLERY -->
+      <section class="panel tab-content" id="tabGallery" style="display: none;">
+        <h2 style="margin-bottom: 14px;">Tambah Foto Galeri</h2>
+        <form class="form-grid" id="galleryForm" style="margin-bottom: 24px;">
+          <div class="field"><label>URL Gambar atau Path Lokal</label><input type="text" id="gUrl" placeholder="images/nama-file.png atau https://..." required></div>
+          <div class="field"><label>Keterangan (Caption)</label><input type="text" id="gCaption" required></div>
+          <div class="field"><label>Tanggal</label><input type="text" id="gDate" placeholder="Nov 14, 2026"></div>
+          <button type="submit" class="btn btn-primary">Tambah ke Galeri</button>
+        </form>
+        <div id="adminGalleryList"></div>
+      </section>
+
+      <!-- TAB ALBUMS -->
+      <section class="panel tab-content" id="tabAlbums" style="display: none;">
+        <h2 style="margin-bottom: 14px;">Tambah Album Favorit</h2>
+        <form class="form-grid" id="albumForm" style="margin-bottom: 24px;">
+          <div class="field"><label>Judul Album</label><input type="text" id="aJudul" required></div>
+          <div class="field"><label>Artis</label><input type="text" id="aArtist" required></div>
+          <div class="field"><label>Cover URL / Path</label><input type="text" id="aCover" placeholder="imgalbm/cover.jpg" required></div>
+          <div class="field"><label>Deskripsi</label><textarea id="aDeskripsi" rows="2"></textarea></div>
+          <div class="field"><label>Tracklist (1 lagu per baris)</label><textarea id="aTracks" rows="4"></textarea></div>
+          <div class="field"><label>Link Spotify</label><input type="url" id="aSpotify" placeholder="https://open.spotify.com/..."></div>
+          <button type="submit" class="btn btn-primary">Simpan Album</button>
+        </form>
+        <div id="adminAlbumList"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initNavbar } from "./js/ui.js";
+    import { firebaseConfig, isFirebaseConfigured } from "./js/firebase-config.js";
+    import { getProfile, getProjects, getGallery, getAlbums } from "./js/data-service.js";
+    import { DEFAULT_PROFILE, DEFAULT_PROJECTS, DEFAULT_GALLERY, DEFAULT_ALBUMS, DEFAULT_TRACKS } from "./js/default-data.js";
+
+    initNavbar();
+
+    const notice = document.getElementById("configNotice");
+    if (!isFirebaseConfigured()) {
+      notice.innerHTML =
+        "<strong>Mode Placeholder Aktif:</strong> Anda belum mengisi <code>js/firebase-config.js</code>. " +
+        "Website publik tetap berjalan normal menggunakan data bawaan di <code>js/default-data.js</code>. " +
+        "Isi <code>firebaseConfig</code> untuk mengaktifkan login Admin dan penyimpanan Firestore.";
+    } else {
+      notice.textContent = "Firebase terkonfigurasi. Silakan login menggunakan akun Admin Anda.";
+      initFirebaseAdmin();
+    }
+
+    // Tab switching
+    document.querySelectorAll(".admin-tab").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".admin-tab").forEach(b => b.classList.remove("aktif"));
+        document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
+        btn.classList.add("aktif");
+        document.getElementById(btn.dataset.tab).style.display = "block";
+      });
+    });
+
+    async function initFirebaseAdmin() {
+      const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+      const { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+      const { getFirestore, doc, setDoc, addDoc, deleteDoc, collection } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+      const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      document.getElementById("loginForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const pass = document.getElementById("loginPassword").value;
+        try {
+          await signInWithEmailAndPassword(auth, email, pass);
+        } catch (err) {
+          document.getElementById("loginStatus").textContent = "Login gagal: " + err.message;
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+
+      onAuthStateChanged(auth, async user => {
+        if (user) {
+          document.getElementById("loginPanel").style.display = "none";
+          document.getElementById("dashboardArea").style.display = "block";
+          document.getElementById("adminUserEmail").textContent = user.email;
+          await loadAdminData(db, deleteDoc, doc);
+        } else {
+          document.getElementById("loginPanel").style.display = "block";
+          document.getElementById("dashboardArea").style.display = "none";
+        }
+      });
+
+      document.getElementById("seedDataBtn").addEventListener("click", async () => {
+        await setDoc(doc(db, "settings", "profile"), DEFAULT_PROFILE);
+        for (let i = 0; i < DEFAULT_PROJECTS.length; i++) {
+          await setDoc(doc(db, "projects", DEFAULT_PROJECTS[i].id), { ...DEFAULT_PROJECTS[i], order: i + 1 });
+        }
+        for (let i = 0; i < DEFAULT_GALLERY.length; i++) {
+          await setDoc(doc(db, "gallery", DEFAULT_GALLERY[i].id), { ...DEFAULT_GALLERY[i], order: i + 1 });
+        }
+        for (let i = 0; i < DEFAULT_ALBUMS.length; i++) {
+          await setDoc(doc(db, "albums", DEFAULT_ALBUMS[i].id), { ...DEFAULT_ALBUMS[i], order: i + 1 });
+        }
+        for (let i = 0; i < DEFAULT_TRACKS.length; i++) {
+          await setDoc(doc(db, "tracks", DEFAULT_TRACKS[i].id), { ...DEFAULT_TRACKS[i], order: i + 1 });
+        }
+        alert("Seluruh data awal berhasil dimigrasikan ke Firestore!");
+        await loadAdminData(db, deleteDoc, doc);
+      });
+
+      document.getElementById("profileForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        await setDoc(doc(db, "settings", "profile"), {
+          nama: document.getElementById("pNama").value,
+          username: document.getElementById("pUsername").value,
+          tagline: document.getElementById("pTagline").value,
+          heroIntro: document.getElementById("pHeroIntro").value,
+          profilIntro: document.getElementById("pProfilIntro").value,
+          statusBadge: document.getElementById("pStatus").value,
+          sekolah: document.getElementById("pSekolah").value,
+          organisasi: document.getElementById("pOrganisasi").value,
+          domisili: document.getElementById("pDomisili").value,
+          highestRank: document.getElementById("pRank").value,
+          townHall: document.getElementById("pTh").value
+        }, { merge: true });
+        alert("Profil disimpan!");
+      });
+
+      document.getElementById("projectForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        await addDoc(collection(db, "projects"), {
+          judul: document.getElementById("prJudul").value,
+          deskripsi: document.getElementById("prDeskripsi").value,
+          techStack: document.getElementById("prTech").value.split(",").map(s => s.trim()).filter(Boolean),
+          liveUrl: document.getElementById("prLive").value || "#",
+          repoUrl: document.getElementById("prRepo").value || "#",
+          order: Date.now()
+        });
+        e.target.reset();
+        await loadAdminData(db, deleteDoc, doc);
+      });
+
+      document.getElementById("galleryForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        await addDoc(collection(db, "gallery"), {
+          imageUrl: document.getElementById("gUrl").value,
+          caption: document.getElementById("gCaption").value,
+          date: document.getElementById("gDate").value,
+          order: Date.now()
+        });
+        e.target.reset();
+        await loadAdminData(db, deleteDoc, doc);
+      });
+
+      document.getElementById("albumForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        await addDoc(collection(db, "albums"), {
+          judul: document.getElementById("aJudul").value,
+          artist: document.getElementById("aArtist").value,
+          cover: document.getElementById("aCover").value,
+          deskripsi: document.getElementById("aDeskripsi").value,
+          tracks: document.getElementById("aTracks").value.split("\n").map(s => s.trim()).filter(Boolean),
+          spotify: document.getElementById("aSpotify").value || "#",
+          order: Date.now()
+        });
+        e.target.reset();
+        await loadAdminData(db, deleteDoc, doc);
+      });
+    }
+
+    async function loadAdminData(db, deleteDoc, doc) {
+      const p = await getProfile();
+      document.getElementById("pNama").value = p.nama || "";
+      document.getElementById("pUsername").value = p.username || "";
+      document.getElementById("pTagline").value = p.tagline || "";
+      document.getElementById("pHeroIntro").value = p.heroIntro || "";
+      document.getElementById("pProfilIntro").value = p.profilIntro || "";
+      document.getElementById("pStatus").value = p.statusBadge || "";
+      document.getElementById("pSekolah").value = p.sekolah || "";
+      document.getElementById("pOrganisasi").value = p.organisasi || "";
+      document.getElementById("pDomisili").value = p.domisili || "";
+      document.getElementById("pRank").value = p.highestRank || "";
+      document.getElementById("pTh").value = p.townHall || "";
+
+      const renderList = (elId, items, colName, labelFn) => {
+        const wrap = document.getElementById(elId);
+        wrap.innerHTML = "";
+        items.forEach(item => {
+          const row = document.createElement("div");
+          row.className = "admin-list-item";
+          const span = document.createElement("span");
+          span.textContent = labelFn(item);
+          const del = document.createElement("button");
+          del.type = "button";
+          del.className = "btn btn-danger";
+          del.textContent = "Hapus";
+          del.addEventListener("click", async () => {
+            await deleteDoc(doc(db, colName, item.id));
+            await loadAdminData(db, deleteDoc, doc);
+          });
+          row.appendChild(span);
+          row.appendChild(del);
+          wrap.appendChild(row);
+        });
+      };
+
+      renderList("adminProjectList", await getProjects(), "projects", i => i.judul);
+      renderList("adminGalleryList", await getGallery(), "gallery", i => `${i.caption} (${i.date || "-"})`);
+      renderList("adminAlbumList", await getAlbums(), "albums", i => `${i.judul} — ${i.artist}`);
+    }
+  </script>
+</body>
+</html>

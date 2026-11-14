@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adhi Sasongko — Portofolio & Jurnal Pribadi</title>
+  <link rel="icon" type="image/png" href="images/Untitled39_20261108173618.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="brand">ADHI SASONGKO</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="nav-link aktif">Beranda</a>
+        <a href="profil.html" class="nav-link">Profil</a>
+        <a href="projects.html" class="nav-link">Proyek</a>
+        <a href="gallery.html" class="nav-link">Galeri</a>
+        <a href="albums.html" class="nav-link">Albums</a>
+        <a href="admin.html" class="nav-link nav-link-admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <p class="eyebrow" id="heroTagline">PELAJAR · DEWAN AMBALAN · WEB ENTHUSIAST</p>
+        <h1 class="serif-title hero-title">
+          Halo, saya<br>
+          <span class="accent-text" id="heroName">Adhi Sasongko.</span>
+        </h1>
+        <p class="lead" id="heroIntro">
+          Membangun disiplin lewat organisasi kepramukaan dan mengeksplorasi pengembangan web modern.
+        </p>
+        <div class="btn-group">
+          <a href="profil.html" class="btn btn-primary">Lihat Profil ↗</a>
+          <a href="projects.html" class="btn btn-outline">Proyek Coding</a>
+        </div>
+      </div>
+
+      <div class="emblem-box" aria-label="Logo Tunas Kelapa Pramuka">
+        <img src="logo-pramuka.png" alt="Logo Tunas Kelapa Pramuka">
+      </div>
+    </section>
+
+    <section class="editorial-section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">01 / FOKUS UTAMA</p>
+          <h2 class="section-title">Organisasi & Eksplorasi</h2>
+        </div>
+      </div>
+
+      <div class="editorial-grid">
+        <article class="editorial-item">
+          <span class="tag">Kepramukaan</span>
+          <h3>Dewan Ambalan</h3>
+          <p>
+            Aktif dalam kegiatan Pramuka sebagai Dewan Ambalan di SMK Tamtama 1 Sidareja,
+            melatih kepemimpinan, kerja sama tim, dan tanggung jawab lapangan.
+          </p>
+        </article>
+
+        <article class="editorial-item">
+          <span class="tag">Teknologi</span>
+          <h3>Pengembangan Web</h3>
+          <p>
+            Membangun keterampilan pemrograman web melalui praktik langsung,
+            eksplorasi antarmuka responsif, dan pengelolaan konten berbasis cloud.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="editorial-section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">02 / KARYA TERPILIH</p>
+          <h2 class="section-title">Proyek Terbaru</h2>
+        </div>
+        <a href="projects.html" class="btn btn-outline btn-sm">Semua Proyek →</a>
+      </div>
+      <div class="project-grid" id="homeProjectsGrid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initNavbar, setText } from "./js/ui.js";
+    import { getProfile, getProjects } from "./js/data-service.js";
+
+    initNavbar();
+
+    const profile = await getProfile();
+    setText("heroName", profile.nama + ".");
+    setText("heroTagline", profile.tagline);
+    setText("heroIntro", profile.heroIntro);
+
+    const projects = await getProjects();
+    const grid = document.getElementById("homeProjectsGrid");
+    projects.slice(0, 2).forEach(p => {
+      const card = document.createElement("article");
+      card.className = "project-card";
+      const pills = (p.techStack || []).map(t => `<span class="pill">${t}</span>`).join("");
+      card.innerHTML = `
+        <div>
+          <h3></h3>
+          <p></p>
+          <div class="tech-pills">${pills}</div>
+        </div>
+        <div class="project-links">
+          <a href="${p.liveUrl || '#'}" target="_blank" rel="noopener">Live Demo ↗</a>
+          <a href="${p.repoUrl || '#'}" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      `;
+      card.querySelector("h3").textContent = p.judul;
+      card.querySelector("p").textContent = p.deskripsi;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

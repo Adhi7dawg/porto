@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyek Coding | Adhi Sasongko</title>
+  <link rel="icon" type="image/png" href="images/Untitled39_20261108173618.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="brand">ADHI SASONGKO</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="profil.html" class="nav-link">Profil</a>
+        <a href="projects.html" class="nav-link aktif">Proyek</a>
+        <a href="gallery.html" class="nav-link">Galeri</a>
+        <a href="albums.html" class="nav-link">Albums</a>
+        <a href="admin.html" class="nav-link nav-link-admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page-wrap">
+    <p class="eyebrow">02 / PROJECTS</p>
+    <h1 class="serif-title page-title">Proyek <span class="accent-text">Coding.</span></h1>
+    <p class="lead">Kumpulan eksplorasi aplikasi web dan eksperimen pemrograman yang sedang maupun telah dikerjakan.</p>
+
+    <div class="project-grid" id="projectsGrid"></div>
+
+    <div class="btn-group" style="margin-top: 36px;">
+      <a href="index.html" class="btn btn-outline">← Beranda</a>
+      <a href="gallery.html" class="btn btn-outline">Galeri →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initNavbar } from "./js/ui.js";
+    import { getProjects } from "./js/data-service.js";
+
+    initNavbar();
+    const projects = await getProjects();
+    const grid = document.getElementById("projectsGrid");
+
+    projects.forEach(p => {
+      const card = document.createElement("article");
+      card.className = "project-card";
+      const pills = (p.techStack || []).map(t => `<span class="pill">${t}</span>`).join("");
+      card.innerHTML = `
+        <div>
+          <h3></h3>
+          <p></p>
+          <div class="tech-pills">${pills}</div>
+        </div>
+        <div class="project-links">
+          <a href="${p.liveUrl || '#'}" target="_blank" rel="noopener">Live Demo ↗</a>
+          <a href="${p.repoUrl || '#'}" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      `;
+      card.querySelector("h3").textContent = p.judul;
+      card.querySelector("p").textContent = p.deskripsi;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

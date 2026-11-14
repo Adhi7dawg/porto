@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galeri | Adhi Sasongko</title>
+  <link rel="icon" type="image/png" href="images/Untitled39_20261108173618.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container navbar">
+      <a href="index.html" class="brand">ADHI SASONGKO</a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Buka menu" aria-expanded="false">☰</button>
+      <nav class="nav-menu" id="navMenu">
+        <a href="index.html" class="nav-link">Beranda</a>
+        <a href="profil.html" class="nav-link">Profil</a>
+        <a href="projects.html" class="nav-link">Proyek</a>
+        <a href="gallery.html" class="nav-link aktif">Galeri</a>
+        <a href="albums.html" class="nav-link">Albums</a>
+        <a href="admin.html" class="nav-link nav-link-admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container page-wrap">
+    <p class="eyebrow">03 / GALLERY</p>
+    <h1 class="serif-title page-title">Galeri <span class="accent-text">Momen.</span></h1>
+    <p class="lead">Dokumentasi kegiatan kepramukaan, perjalanan, dan pencapaian gim.</p>
+
+    <div class="galeri" id="galleryGrid"></div>
+
+    <div class="btn-group">
+      <a href="index.html" class="btn btn-outline">← Beranda</a>
+      <a href="albums.html" class="btn btn-outline">Albums →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+    <img id="lightbox-img" alt="">
+  </div>
+
+  <script type="module">
+    import { initNavbar } from "./js/ui.js";
+    import { getGallery } from "./js/data-service.js";
+
+    initNavbar();
+    const items = await getGallery();
+    const grid = document.getElementById("galleryGrid");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+
+    items.forEach(item => {
+      const fig = document.createElement("figure");
+      fig.className = "foto-item";
+
+      const img = document.createElement("img");
+      img.src = item.imageUrl;
+      img.alt = item.caption || "Dokumentasi";
+      img.loading = "lazy";
+      img.addEventListener("click", () => {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.classList.add("tampil");
+      });
+
+      const cap = document.createElement("figcaption");
+      cap.textContent = item.date ? `${item.caption} / ${item.date}` : item.caption;
+
+      fig.appendChild(img);
+      fig.appendChild(cap);
+      grid.appendChild(fig);
+    });
+
+    lightbox.addEventListener("click", () => lightbox.classList.remove("tampil"));
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") lightbox.classList.remove("tampil");
+    });
+  </script>
+</body>
+</html>
