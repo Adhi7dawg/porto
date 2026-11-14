@@ -25,6 +25,51 @@ async function ensureFirestore() {
   return initPromise;
 }
 
+/** Normalize legacy string tracks and newer track objects into one shape. */
+export function normalizeAlbumTracks(rawTracks) {
+  if (!Array.isArray(rawTracks)) return [];
+  return rawTracks.map((item, idx) => {
+    if (typeof item === "string") {
+      return {
+        number: idx + 1,
+        title: item,
+        duration: "",
+        rating: 0,
+        recordingId: ""
+      };
+    }
+
+    const track = item && typeof item === "object" ? item : {};
+    return {
+      number: idx + 1,
+      title: track.title || track.judul || "Untitled Track",
+      duration: track.duration || "",
+      rating: typeof track.rating === "number" ? track.rating : 0,
+      recordingId: track.recordingId || ""
+    };
+  });
+}
+
+/** Upload a manually selected album cover and return its public download URL. */
+export async function uploadAlbumCoverToStorage(file) {
+  if (!isFirebaseConfigured()) {
+    throw new Error("Firebase belum dikonfigurasi. Isi js/firebase-config.js terlebih dahulu.");
+  }
+  if (!file || typeof file.name !== "string") {
+    throw new Error("File cover album tidak valid.");
+  }
+
+  const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const { getStorage, ref, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js");
+  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+  const storage = getStorage(app);
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const storageRef = ref(storage, `album-covers/${Date.now()}_${safeName}`);
+  await uploadBytes(storageRef, file);
+  return getDownloadURL(storageRef);
+}
+
 export async function getProfile() {
   const firestore = await ensureFirestore();
   if (!firestore) return DEFAULT_PROFILE;
