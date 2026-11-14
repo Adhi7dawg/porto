@@ -62,28 +62,51 @@
 
   <script type="module">
     import { initNavbar } from "./js/ui.js";
-    import { getAlbums, getTracks } from "./js/data-service.js";
+    import { getAlbums, getTracks, normalizeAlbumTracks } from "./js/data-service.js";
 
     initNavbar();
 
     const albums = await getAlbums();
     const topTracks = await getTracks();
-
     const grid = document.getElementById("albumGrid");
     const daftarTrack = document.getElementById("trackList");
     const modal = document.getElementById("modal");
     let terakhirFokus = null;
 
+    function renderStars(rating) {
+      const r = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+      return r === 0 ? "" : "★".repeat(r) + "☆".repeat(5 - r);
+    }
+
     function buatItem(data, kelas, kelasInfo, panah) {
       const tombol = document.createElement("button");
       tombol.className = kelas;
       tombol.type = "button";
-      tombol.innerHTML =
-        '<img src="' + data.cover + '" alt="Cover ' + data.judul + '" loading="lazy">' +
-        '<div class="' + kelasInfo + '"><strong></strong><span></span></div>' +
-        (panah ? '<span class="track-panah" aria-hidden="true">›</span>' : "");
-      tombol.querySelector("strong").textContent = data.judul;
-      tombol.querySelector("." + kelasInfo + " span").textContent = data.artist;
+      const img = document.createElement("img");
+      img.src = data.cover || data.coverUrl || "imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg";
+      img.alt = `Cover ${data.judul || data.title || "album"}`;
+      img.loading = "lazy";
+      const info = document.createElement("div");
+      info.className = kelasInfo;
+      const strong = document.createElement("strong");
+      strong.textContent = data.judul || data.title || "Untitled";
+      const artist = document.createElement("span");
+      artist.textContent = data.artist || "Unknown Artist";
+      info.append(strong, artist);
+      tombol.append(img, info);
+      if (panah) {
+        const arrow = document.createElement("span");
+        arrow.className = "track-panah";
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = "›";
+        tombol.appendChild(arrow);
+      }
+      if (!panah && (data.edition || data.releaseDate)) {
+        const badge = document.createElement("small");
+        badge.className = "album-edition-tag";
+        badge.textContent = data.edition ? data.edition.split("·")[0].trim() : data.releaseDate;
+        info.appendChild(badge);
+      }
       tombol.addEventListener("click", () => buka(data, tombol));
       return tombol;
     }
@@ -93,23 +116,72 @@
 
     function buka(a, pemicu) {
       terakhirFokus = pemicu;
-      document.getElementById("mCover").src = a.cover;
-      document.getElementById("mCover").alt = "Cover " + a.judul;
-      document.getElementById("mJudul").textContent = a.judul;
-      document.getElementById("mArtist").textContent = a.artist;
-      document.getElementById("mDeskripsi").textContent = a.deskripsi;
-      document.getElementById("mSpotify").href = a.spotify;
-      const ol = document.getElementById("mTracks");
-      ol.innerHTML = "";
-      const adaTracks = Array.isArray(a.tracks) && a.tracks.length > 0;
-      document.getElementById("mTrackWrap").style.display = adaTracks ? "" : "none";
-      if (adaTracks) {
-        a.tracks.forEach(t => {
-          const li = document.createElement("li");
-          li.textContent = t;
-          ol.appendChild(li);
-        });
+      const cover = a.cover || a.coverUrl || "imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg";
+      document.getElementById("mCover").src = cover;
+      document.getElementById("mCover").alt = `Cover ${a.judul || a.title || "album"}`;
+      document.getElementById("mJudul").textContent = a.judul || a.title || "Untitled";
+      document.getElementById("mArtist").textContent = a.artist || "Unknown Artist";
+      document.getElementById("mDeskripsi").textContent = a.deskripsi || a.description || "";
+
+      const spotifyBtn = document.getElementById("mSpotify");
+      if (a.spotify && a.spotify !== "#") {
+        spotifyBtn.style.display = "inline-flex";
+        spotifyBtn.href = a.spotify;
+      } else {
+        spotifyBtn.style.display = "none";
       }
+
+      let metaBox = document.getElementById("mMetaPills");
+      if (!metaBox) {
+        metaBox = document.createElement("div");
+        metaBox.id = "mMetaPills";
+        metaBox.className = "modal-meta-pills";
+        document.getElementById("mArtist").insertAdjacentElement("afterend", metaBox);
+      }
+      metaBox.replaceChildren();
+      [a.edition, a.releaseDate, a.countryFormat, a.rating ? `Album ★ ${a.rating}/5` : ""].filter(Boolean).forEach(text => {
+        const pill = document.createElement("span");
+        pill.className = "pill";
+        pill.textContent = text;
+        metaBox.appendChild(pill);
+      });
+
+      const ol = document.getElementById("mTracks");
+      ol.className = "tracklist-detailed";
+      ol.replaceChildren();
+      const normalizedTracks = normalizeAlbumTracks(a.tracks);
+      document.getElementById("mTrackWrap").style.display = normalizedTracks.length ? "" : "none";
+
+      normalizedTracks.forEach((track, idx) => {
+        const li = document.createElement("li");
+        const left = document.createElement("div");
+        left.className = "t-left";
+        const num = document.createElement("span");
+        num.className = "t-num";
+        num.textContent = `${idx + 1}.`;
+        const title = document.createElement("span");
+        title.className = "t-title";
+        title.textContent = track.title;
+        left.append(num, title);
+
+        const right = document.createElement("div");
+        right.className = "t-right";
+        if (track.rating > 0) {
+          const stars = document.createElement("span");
+          stars.className = "t-stars";
+          stars.textContent = renderStars(track.rating);
+          stars.setAttribute("aria-label", `Rating pribadi ${track.rating} dari 5`);
+          right.appendChild(stars);
+        }
+        if (track.duration) {
+          const duration = document.createElement("span");
+          duration.textContent = track.duration;
+          right.appendChild(duration);
+        }
+        li.append(left, right);
+        ol.appendChild(li);
+      });
+
       modal.classList.add("tampil");
       document.body.style.overflow = "hidden";
       document.getElementById("mTutup").focus();
