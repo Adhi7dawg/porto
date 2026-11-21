@@ -1,12 +1,106 @@
-/* Keep the card intro above other page styles and ensure the cards stack correctly. */
+/* Intro overlay layout: keep the overlay centered and the cards stacked around its center. */
 .intro-overlay {
   position: fixed !important;
   inset: 0 !important;
   width: 100vw !important;
+  height: 100vh !important;
   height: 100dvh !important;
   z-index: 9999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 28px !important;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 50% 45%, var(--accent-soft), transparent 60%);
+  transition: opacity 0.8s ease;
+}
+
+.intro-overlay.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-cards {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 190px;
+  width: min(220px, 72vw) !important;
+  height: 190px !important;
+  cursor: pointer;
+  isolation: isolate;
 }
 
 .playing-card {
   position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 112px !important;
+  height: 160px !important;
+  margin: -80px 0 0 -56px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--radius-md);
+  background: var(--text);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+}
+
+.card-spade { color: var(--bg); transform: translateX(-14px) rotate(-7deg); z-index: 1; }
+.card-heart { color: var(--danger); transform: translateY(-4px); z-index: 2; }
+.card-diamond { color: var(--danger); transform: translateX(14px) rotate(7deg); z-index: 3; }
+
+.card-corner {
+  position: absolute;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+.card-corner.top { top: 9px; left: 10px; }
+.card-corner.bottom { right: 10px; bottom: 9px; transform: rotate(180deg); }
+.card-suit { font-size: 42px; line-height: 1; }
+
+.intro-cards:hover .card-spade { transform: translateX(-68px) rotate(-16deg); }
+.intro-cards:hover .card-heart { transform: translateY(-10px) scale(1.03); }
+.intro-cards:hover .card-diamond { transform: translateX(68px) rotate(16deg); }
+
+.intro-overlay.is-flying .card-spade {
+  transform: translate(-68px, -110vh) rotate(-22deg);
+  opacity: 0;
+  transition: transform 0.9s cubic-bezier(0.32, 0, 0.67, 0), opacity 0.9s ease;
+}
+.intro-overlay.is-flying .card-heart {
+  transform: translate(0, -110vh);
+  opacity: 0;
+  transition: transform 0.9s cubic-bezier(0.32, 0, 0.67, 0) 0.06s, opacity 0.9s ease 0.06s;
+}
+.intro-overlay.is-flying .card-diamond {
+  transform: translate(68px, -110vh) rotate(22deg);
+  opacity: 0;
+  transition: transform 0.9s cubic-bezier(0.32, 0, 0.67, 0) 0.12s, opacity 0.9s ease 0.12s;
+}
+
+.intro-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  animation: introPulse 2s ease-in-out infinite;
+}
+.intro-overlay.is-flying .intro-hint { opacity: 0; transition: opacity 0.3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-overlay,
+  .playing-card,
+  .intro-hint {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
