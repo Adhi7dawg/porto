@@ -11,6 +11,28 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <div id="introOverlay" class="intro-overlay" role="dialog" aria-modal="true" aria-label="Intro Kartu Remi">
+    <div class="intro-cards" id="introCards">
+      <div class="playing-card card-spade" aria-hidden="true">
+        <span class="card-corner top">♠7</span>
+        <span class="card-suit">♠</span>
+        <span class="card-corner bottom">♠7</span>
+      </div>
+      <div class="playing-card card-heart" aria-hidden="true">
+        <span class="card-corner top">♥A</span>
+        <span class="card-suit">♥</span>
+        <span class="card-corner bottom">♥A</span>
+      </div>
+      <div class="playing-card card-diamond" aria-hidden="true">
+        <span class="card-corner top">♦9</span>
+        <span class="card-suit">♦</span>
+        <span class="card-corner bottom">♦9</span>
+      </div>
+    </div>
+    <p class="intro-hint">klik untuk masuk</p>
+  </div>
+
+  <div id="main-wrapper" class="main-wrapper">
   <header class="site-header">
     <div class="container navbar">
       <a href="index.html" class="brand">ADHI SASONGKO</a>
@@ -94,12 +116,33 @@
       © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
     </div>
   </footer>
-
+  </div>
   <script type="module">
     import { initNavbar, setText } from "./js/ui.js";
     import { getProfile, getProjects } from "./js/data-service.js";
 
     initNavbar();
+
+    const introOverlay = document.getElementById("introOverlay");
+    const introCards = document.getElementById("introCards");
+    let introTriggered = false;
+
+    if (introOverlay && introCards) {
+      document.body.classList.add("intro-active");
+      introCards.addEventListener("click", () => {
+        if (introTriggered) return;
+        introTriggered = true;
+        introOverlay.classList.add("is-flying");
+        setTimeout(() => {
+          introOverlay.classList.add("is-fading");
+          document.body.classList.remove("intro-active");
+          document.body.classList.add("intro-done");
+        }, 900);
+        setTimeout(() => {
+          introOverlay.remove();
+        }, 1800);
+      });
+    }
 
     const profile = await getProfile();
     setText("heroName", profile.nama + ".");
