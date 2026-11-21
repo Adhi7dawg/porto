@@ -1,0 +1,12 @@
+/* Keep the card intro above other page styles and ensure the cards stack correctly. */
+.intro-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  z-index: 9999 !important;
+}
+
+.playing-card {
+  position: absolute !important;
+}
