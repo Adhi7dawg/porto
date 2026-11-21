@@ -32,6 +32,7 @@
   height: 190px !important;
   cursor: pointer;
   isolation: isolate;
+  perspective: 900px;
 }
 
 .playing-card {
@@ -46,12 +47,20 @@
   justify-content: center !important;
   border-radius: var(--radius-md);
   background: var(--text);
+  border: 1px solid var(--border-strong);
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+  transform-origin: 50% 80%;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 520ms ease,
+    opacity 900ms ease;
 }
 
-.card-spade { color: var(--bg); transform: translateX(-14px) rotate(-7deg); z-index: 1; }
-.card-heart { color: var(--danger); transform: translateY(-4px); z-index: 2; }
-.card-diamond { color: var(--danger); transform: translateX(14px) rotate(7deg); z-index: 3; }
+.card-spade { color: var(--bg); transform: translate3d(-14px, 0, 0) rotate(-7deg); z-index: 1; }
+.card-heart { color: var(--danger); transform: translate3d(0, -4px, 0) rotate(0deg); z-index: 2; }
+.card-diamond { color: var(--danger); transform: translate3d(14px, 0, 0) rotate(7deg); z-index: 3; }
 
 .card-corner {
   position: absolute;
@@ -64,24 +73,40 @@
 .card-corner.bottom { right: 10px; bottom: 9px; transform: rotate(180deg); }
 .card-suit { font-size: 42px; line-height: 1; }
 
-.intro-cards:hover .card-spade { transform: translateX(-68px) rotate(-16deg); }
-.intro-cards:hover .card-heart { transform: translateY(-10px) scale(1.03); }
-.intro-cards:hover .card-diamond { transform: translateX(68px) rotate(16deg); }
+.intro-cards:hover .card-spade {
+  transform: translate3d(-58px, 4px, 18px) rotate(-15deg);
+  box-shadow: -12px 24px 42px rgba(0, 0, 0, 0.48);
+}
+.intro-cards:hover .card-heart {
+  transform: translate3d(0, -12px, 28px) scale(1.035);
+  box-shadow: 0 26px 48px rgba(0, 0, 0, 0.52);
+}
+.intro-cards:hover .card-diamond {
+  transform: translate3d(58px, 4px, 18px) rotate(15deg);
+  box-shadow: 12px 24px 42px rgba(0, 0, 0, 0.48);
+}
+
+.intro-cards:active .playing-card {
+  transition-duration: 160ms;
+}
+.intro-cards:active .card-spade { transform: translate3d(-58px, 8px, 10px) rotate(-13deg) scale(0.985); }
+.intro-cards:active .card-heart { transform: translate3d(0, -8px, 20px) scale(1); }
+.intro-cards:active .card-diamond { transform: translate3d(58px, 8px, 10px) rotate(13deg) scale(0.985); }
 
 .intro-overlay.is-flying .card-spade {
-  transform: translate(-68px, -110vh) rotate(-22deg);
+  transform: translate3d(-68px, -110vh, 0) rotate(-22deg);
   opacity: 0;
-  transition: transform 0.9s cubic-bezier(0.32, 0, 0.67, 0), opacity 0.9s ease;
+  transition: transform 900ms cubic-bezier(0.32, 0, 0.67, 0), opacity 900ms ease;
 }
 .intro-overlay.is-flying .card-heart {
-  transform: translate(0, -110vh);
+  transform: translate3d(0, -110vh, 0) rotate(0deg);
   opacity: 0;
-  transition: transform 0.9s cubic-bezier(0.32, 0, 0.67, 0) 0.06s, opacity 0.9s ease 0.06s;
+  transition: transform 900ms cubic-bezier(0.32, 0, 0.67, 0) 60ms, opacity 900ms ease 60ms;
 }
 .intro-overlay.is-flying .card-diamond {
-  transform: translate(68px, -110vh) rotate(22deg);
+  transform: translate3d(68px, -110vh, 0) rotate(22deg);
   opacity: 0;
-  transition: transform 0.9s cubic-bezier(0.32, 0, 0.67, 0) 0.12s, opacity 0.9s ease 0.12s;
+  transition: transform 900ms cubic-bezier(0.32, 0, 0.67, 0) 120ms, opacity 900ms ease 120ms;
 }
 
 .intro-hint {
@@ -93,8 +118,14 @@
   text-transform: uppercase;
   color: var(--accent);
   animation: introPulse 2s ease-in-out infinite;
+  transition: opacity 300ms ease;
 }
-.intro-overlay.is-flying .intro-hint { opacity: 0; transition: opacity 0.3s ease; }
+.intro-overlay.is-flying .intro-hint { opacity: 0; }
+
+@keyframes introPulse {
+  0%, 100% { opacity: 0.45; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-2px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .intro-overlay,
