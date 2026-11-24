@@ -34,6 +34,29 @@
       Memeriksa status konfigurasi Firebase di <code>js/firebase-config.js</code>...
     </div>
 
+    <!-- QUOTE OF THE DAY EDITOR (LOKAL / LOCALSTORAGE) -->
+    <section class="panel" id="quotePanel">
+      <h2 style="margin-bottom: 6px;">Quotes of the Day</h2>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+        Disimpan di <code>localStorage</code> browser ini agar langsung tampil di halaman Profil (<code>profil.html</code> / <code>profile.html</code>). Sinkronisasi cloud ke Firestore bergantung pada konfigurasi eksternal yang belum ada di kode ini [uncertain].
+      </p>
+      <form class="form-grid" id="quoteForm">
+        <div class="field">
+          <label for="quoteTextInput">Teks Quote</label>
+          <textarea id="quoteTextInput" rows="2" placeholder="Tulis quote of the day di sini..." required></textarea>
+        </div>
+        <div class="field">
+          <label for="quoteAuthorInput">Sumber / Penulis (Opsional)</label>
+          <input type="text" id="quoteAuthorInput" placeholder="Contoh: Adhi Sasongko">
+        </div>
+        <div class="btn-group">
+          <button type="submit" class="btn btn-primary" id="btnSaveQuote">Simpan Quote</button>
+          <button type="button" class="btn btn-outline btn-sm" id="btnResetQuote">Reset Default</button>
+        </div>
+      </form>
+      <p id="quoteStatus" role="status" aria-live="polite" style="margin-top: 12px; font-size: 13px; color: var(--success);"></p>
+    </section>
+
     <!-- LOGIN SECTION -->
     <section class="panel" id="loginPanel">
       <h2 style="margin-bottom: 14px;">Login Administrator</h2>
@@ -172,6 +195,188 @@
           <input type="hidden" id="aMbReleaseId" value="">
           <input type="hidden" id="aMbReleaseGroupId" value="">
           <input type="hidden" id="aCoverSource" value="manual">
+
+          <!-- COVER ARTWORK EDITOR -->
+          <div class="field">
+            <label>Album Cover (Cover Art Archive / Upload Manual Prioritas)</label>
+            <div class="mb-cover-editor">
+              <img id="aCoverPreview" class="mb-cover-preview" src="imgalbm/97a5aa24de7948fc9135016f9980cfed.jpg" alt="Preview Cover">
+              <div style="flex: 1; min-width: 220px; display: grid; gap: 10px;">
+                <div>
+                  <label style="font-size: 12px;">URL / Path Cover Saat Ini</label>
+                  <input type="text" id="aCover" placeholder="https://coverartarchive.org/... atau imgalbm/cover.jpg" required>
+                </div>
+                <div>
+                  <label style="font-size: 12px;">Upload Cover Manual (Diprioritaskan di atas Cover Art Archive)</label>
+                  <input type="file" id="aCoverFile" accept="image/*">
+                  <small id="aCoverUploadStatus" style="display: block; font-size: 12px; color: var(--text-muted); margin-top: 4px;"></small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Judul Album</label><input type="text" id="aJudul" required></div>
+            <div class="field"><label>Nama Artis</label><input type="text" id="aArtist" required></div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Edisi Album (Original / Deluxe / Remastered / Reissue)</label><input type="text" id="aEdition" placeholder="contoh: Original Release · CD"></div>
+            <div class="field"><label>Tanggal Rilis</label><input type="text" id="aReleaseDate" placeholder="YYYY-MM-DD"></div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Tipe Rilis</label><input type="text" id="aReleaseType" placeholder="Album / EP / Compilation"></div>
+            <div class="field"><label>Negara & Format Rilis</label><input type="text" id="aCountryFormat" placeholder="US · Vinyl / CD / Digital"></div>
+          </div>
+
+          <div class="form-two-col">
+            <div class="field"><label>Rating Album Pribadi (0 - 5)</label><input type="number" id="aAlbumRating" min="0" max="5" step="0.5" value="0"></div>
+            <div class="field"><label>MusicBrainz Release ID (Referensi Eksternal)</label><input type="text" id="aMbReleaseIdDisplay" readonly placeholder="Otomatis terisi dari MusicBrainz"></div>
+          </div>
+
+          <div class="field"><label>Catatan / Deskripsi Album</label><textarea id="aDeskripsi" rows="2"></textarea></div>
+          <div class="field"><label>Link Spotify (Opsional)</label><input type="url" id="aSpotify" placeholder="https://open.spotify.com/..."></div>
+
+          <!-- TRACK MANAGEMENT EDITOR -->
+          <div class="field">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <label style="margin-bottom: 0;">Tracklist & Rating Pribadi per Lagu</label>
+              <button type="button" class="btn btn-outline btn-sm" id="btnAddManualTrack">+ Tambah Track Manual</button>
+            </div>
+            <div class="mb-track-editor-list" id="aTrackEditorList"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="btnSaveAlbumSubmit">Simpan Album ke Firestore</button>
+        </form>
+
+        <h3 style="margin-bottom: 10px; font-size: 16px;">Koleksi Album Tersimpan</h3>
+        <div id="adminAlbumList"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      © 2026 Adhi Sasongko · Dewan Ambalan · SMK Tamtama 1 Sidareja
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initNavbar } from "./js/ui.js";
+    import { firebaseConfig, isFirebaseConfigured } from "./js/firebase-config.js";
+    import { getProfile, getProjects, getGallery, getAlbums, normalizeAlbumTracks, uploadAlbumCoverToStorage } from "./js/data-service.js";
+    import { DEFAULT_PROFILE, DEFAULT_PROJECTS, DEFAULT_GALLERY, DEFAULT_ALBUMS, DEFAULT_TRACKS } from "./js/default-data.js";
+    import { searchAlbumsMB, getAlbumEditionsMB, getReleaseDetailsMB, getCoverArtUrl } from "./js/musicbrainz-service.js";
+
+    initNavbar();
+
+    const QUOTE_STORAGE_KEY = "adhi_sasongko_quote_of_the_day_v1";
+    const DEFAULT_QUOTE = {
+      text: "Disiplin kecil yang dilakukan konsisten setiap hari membangun arah yang tidak bisa ditawar oleh keadaan.",
+      author: "Adhi Sasongko",
+      updatedAt: ""
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function loadStoredQuote() {
+      try {
+        const raw = localStorage.getItem(QUOTE_STORAGE_KEY);
+        if (!raw) return { ...DEFAULT_QUOTE };
+        const parsed = JSON.parse(raw);
+        const text = typeof parsed?.text === "string" && parsed.text.trim()
+          ? parsed.text.trim()
+          : DEFAULT_QUOTE.text;
+        const author = typeof parsed?.author === "string"
+          ? parsed.author.trim()
+          : DEFAULT_QUOTE.author;
+        return { text, author, updatedAt: parsed?.updatedAt || "" };
+      } catch {
+        return { ...DEFAULT_QUOTE };
+      }
+    }
+
+    function saveStoredQuote(text, author) {
+      const payload = {
+        text: text.trim() || DEFAULT_QUOTE.text,
+        author: author.trim(),
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(QUOTE_STORAGE_KEY, JSON.stringify(payload));
+      return payload;
+    }
+
+    function hydrateQuoteForm() {
+      const current = loadStoredQuote();
+      if ($("quoteTextInput")) $("quoteTextInput").value = current.text;
+      if ($("quoteAuthorInput")) $("quoteAuthorInput").value = current.author;
+    }
+
+    hydrateQuoteForm();
+
+    $("quoteForm")?.addEventListener("submit", e => {
+      e.preventDefault();
+      const textVal = $("quoteTextInput").value.trim();
+      if (!textVal) {
+        $("quoteStatus").style.color = "var(--danger)";
+        $("quoteStatus").textContent = "Teks quote tidak boleh kosong.";
+        return;
+      }
+      saveStoredQuote(textVal, $("quoteAuthorInput").value);
+      $("quoteStatus").style.color = "var(--success)";
+      $("quoteStatus").textContent = "Quote of the Day tersimpan di localStorage dan siap tampil di halaman Profil.";
+    });
+
+    $("btnResetQuote")?.addEventListener("click", () => {
+      localStorage.removeItem(QUOTE_STORAGE_KEY);
+      hydrateQuoteForm();
+      $("quoteStatus").style.color = "var(--accent)";
+      $("quoteStatus").textContent = "Quote dikembalikan ke nilai default.";
+    });
+
+    const notice = document.getElementById("configNotice");
+    if (!isFirebaseConfigured()) {
+      notice.innerHTML =
+        "<strong>Mode Placeholder Aktif:</strong> Anda belum mengisi <code>js/firebase-config.js</code>. " +
+        "Website publik tetap berjalan normal menggunakan data bawaan di <code>js/default-data.js</code>. " +
+        "Isi <code>firebaseConfig</code> untuk mengaktifkan login Admin dan penyimpanan Firestore.";
+    } else {
+      notice.textContent = "Firebase terkonfigurasi. Silakan login menggunakan akun Admin Anda.";
+      initFirebaseAdmin();
+    }
+
+    document.querySelectorAll(".admin-tab").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".admin-tab").forEach(b => b.classList.remove("aktif"));
+        document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
+        btn.classList.add("aktif");
+        document.getElementById(btn.dataset.tab).style.display = "block";
+      });
+    });
+
+    let selectedGroup = null;
+    let selectedEditionId = "";
+
+    function setWizardStep(step) {
+      $("mbStepsBar").style.display = step ? "flex" : "none";
+      $("mbStepSearch").style.display = step === 1 ? "block" : "none";
+      $("mbStepEditions").style.display = step === 2 ? "block" : "none";
+      if (step !== 3) $("albumForm").style.display = "none";
+      [1, 2, 3].forEach(n => $("stepPill" + n).classList.toggle("active", n === step));
+    }
+
+    function showAlbumForm(mode = "manual") {
+      setWizardStep(mode === "musicbrainz" ? 3 : 0);
+      $("albumForm").style.display = "grid";
+      $("mbFormModeBadge").textContent = mode === "musicbrainz" ? "METADATA MUSICBRAINZ — SILAKAN REVIEW" : "INPUT ALBUM MANUAL";
+      $("btnBackToEditions").style.display = mode === "musicbrainz" ? "inline-flex" : "none";
+    }
+
+    function resetAlbumEditor() {
+      $("albumForm").reset();
+      $("aEditDocId").value = "";
+      $("aMbReleaseIdidden" id="aCoverSource" value="manual">
 
           <!-- COVER ARTWORK EDITOR -->
           <div class="field">
