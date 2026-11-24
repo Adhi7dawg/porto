@@ -42,6 +42,12 @@
       </div>
     </section>
 
+    <section class="quote-card" id="quoteOfTheDayCard" aria-label="Quotes of the Day">
+      <p class="eyebrow">QUOTES OF THE DAY</p>
+      <blockquote class="quote-text" id="quoteOfTheDayText"></blockquote>
+      <p class="quote-author" id="quoteOfTheDayAuthor"></p>
+    </section>
+
     <section class="info-list">
       <dl>
         <div class="info-row"><dt>Nama Lengkap</dt><dd id="infoNama">Adhi Sasongko</dd></div>
@@ -71,6 +77,47 @@
     import { getProfile } from "./js/data-service.js";
 
     initNavbar();
+
+    const QUOTE_STORAGE_KEY = "adhi_sasongko_quote_of_the_day_v1";
+    const DEFAULT_QUOTE = {
+      text: "Disiplin kecil yang dilakukan konsisten setiap hari membangun arah yang tidak bisa ditawar oleh keadaan.",
+      author: "Adhi Sasongko"
+    };
+
+    function renderQuoteOfTheDay() {
+      const card = document.getElementById("quoteOfTheDayCard");
+      const textEl = document.getElementById("quoteOfTheDayText");
+      const authorEl = document.getElementById("quoteOfTheDayAuthor");
+      if (!card || !textEl || !authorEl) return;
+
+      let quote = { ...DEFAULT_QUOTE };
+      try {
+        const raw = localStorage.getItem(QUOTE_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed?.text === "string" && parsed.text.trim()) {
+            quote.text = parsed.text.trim();
+          }
+          if (typeof parsed?.author === "string") {
+            quote.author = parsed.author.trim();
+          }
+        }
+      } catch {
+        quote = { ...DEFAULT_QUOTE };
+      }
+
+      textEl.textContent = quote.text;
+      authorEl.textContent = quote.author;
+      card.hidden = !quote.text;
+    }
+
+    renderQuoteOfTheDay();
+    window.addEventListener("storage", event => {
+      if (event.key === QUOTE_STORAGE_KEY) {
+        renderQuoteOfTheDay();
+      }
+    });
+
     const p = await getProfile();
     setText("profilIntro", p.profilIntro);
     setText("profilNama", p.nama);
