@@ -228,6 +228,107 @@ main { flex: 1; }
   .mb-track-row .mb-track-actions { justify-content: flex-start; }
 }
 
+/* ---------- TODAY'S QUOTE (profile.html / profil.html) ---------- */
+.quote-card { position: relative; overflow: hidden; margin-bottom: 28px; padding: 30px 32px 26px; border-radius: var(--radius-lg); background: linear-gradient(145deg, rgba(238, 202, 166, 0.12), var(--surface) 62%); border: 1px solid var(--border-strong); }
+.quote-card[hidden] { display: none; }
+.quote-card::before { content: "\201C"; position: absolute; top: -22px; fo { flex: 1; min-width: 0; }
+.track-info strong, .track-info span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.track-info strong { font-size: 15px; }
+.track-info span { font-size: 13px; color: var(--text-muted); }
+.track-panah { font-size: 22px; color: var(--text-muted); }
+
+.modal { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0, 0, 0, 0.85); justify-content: center; align-items: center; padding: 16px; }
+.modal.tampil { display: flex; }
+.modal-isi { position: relative; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg); padding: 24px; }
+.modal-tutup { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.6); color: var(--text); font-size: 16px; cursor: pointer; }
+.modal-cover { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 14px; margin-bottom: 16px; }
+.modal-artist { color: var(--accent); font-weight: 600; margin-bottom: 10px; }
+.modal-deskripsi { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
+.tracklist { margin: 8px 0 20px 20px; color: var(--text-muted); font-size: 14px; }
+.tracklist li { padding: 4px 0; border-bottom: 1px solid var(--border); }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+.form-grid { display: grid; gap: 14px; }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+.field input, .field textarea, .field select { width: 100%; padding: 11px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; font-size: 14px; }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+.admin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.admin-tab { padding: 9px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-weight: 600; font-size: 14px; cursor: pointer; }
+.admin-tab.aktif { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.admin-list-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.admin-list-item:last-child { border-bottom: none; }
+.notice { padding: 12px 16px; border-radius: var(--radius-sm); background: var(--accent-soft); border: 1px solid var(--border-strong); color: var(--accent); font-size: 13px; margin-bottom: 18px; }
+.site-footer { border-top: 1px solid var(--border); padding: 28px 0; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+@media (max-width: 768px) {
+  .nav-toggle { display: inline-flex; }
+  .nav-menu { display: none; width: 100%; flex-direction: column; align-items: stretch; padding: 12px 0 16px; border-top: 1px solid var(--border); }
+  .nav-menu.open { display: flex; }
+  .hero { grid-template-columns: 1fr; padding-top: 36px; gap: 24px; }
+  .emblem-box { margin-left: 0; width: 120px; height: 120px; padding: 22px; border-radius: 22px; order: -1; }
+  .editorial-grid { grid-template-columns: 1fr; }
+  .profile-banner { flex-direction: column; text-align: center; }
+  .info-row { flex-direction: column; gap: 4px; }
+  .info-row dd { text-align: left; }
+}
+
+/* ---------- MUSICBRAINZ & ALBUM EDITION MANAGER ---------- */
+.mb-wizard-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.mb-steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.mb-step-pill { font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); }
+.mb-step-pill.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.mb-step-pill.done { border-color: rgba(93, 255, 176, 0.4); color: var(--success); }
+.mb-search-bar { display: flex; gap: 10px; flex-wrap: wrap; }
+.mb-search-bar input { flex: 1; min-width: 220px; }
+.mb-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-top: 16px; }
+.mb-result-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: flex; gap: 12px; align-items: flex-start; cursor: pointer; text-align: left; color: inherit; font: inherit; transition: border-color 0.18s, transform 0.18s; }
+.mb-result-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.mb-result-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: var(--surface-elevated); border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-muted); overflow: hidden; }
+.mb-result-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.mb-result-meta { flex: 1; min-width: 0; }
+.mb-result-meta strong { display: block; font-size: 14px; line-height: 1.3; margin-bottom: 3px; }
+.mb-result-meta small { display: block; font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+.mb-edition-list { display: grid; gap: 12px; margin-top: 14px; }
+.mb-edition-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.mb-edition-card:hover { border-color: var(--border-strong); }
+.mb-edition-main { display: flex; gap: 14px; align-items: flex-start; flex: 1; min-width: 240px; }
+.mb-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.mb-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border-strong); }
+.mb-badge-original { background: rgba(93, 255, 176, 0.12); color: var(--success); border-color: rgba(93, 255, 176, 0.35); }
+.mb-badge-muted { background: var(--surface); color: var(--text-muted); border-color: var(--border); }
+.mb-preview-box { margin-top: 12px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); font-size: 13px; }
+.mb-cover-editor { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; background: var(--bg); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border); }
+.mb-cover-preview { width: 120px; height: 120px; border-radius: 12px; object-fit: cover; background: var(--surface-elevated); border: 1px solid var(--border-strong); flex-shrink: 0; }
+.mb-track-editor-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.mb-track-row { display: grid; grid-template-columns: 32px 1fr 90px auto auto; gap: 8px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; }
+.mb-track-num { font-size: 12px; font-weight: 700; color: var(--text-muted); text-align: center; }
+.mb-track-row input[type="text"] { padding: 7px 10px; font-size: 13px; }
+.star-rating { display: inline-flex; gap: 2px; align-items: center; }
+.star-btn { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; padding: 2px; line-height: 1; transition: transform 0.12s, color 0.12s; }
+.star-btn:hover { transform: scale(1.15); }
+.star-btn.filled { color: #f5b942; }
+.mb-track-actions { display: inline-flex; gap: 4px; }
+.icon-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 5px 8px; font-size: 12px; cursor: pointer; }
+.icon-btn:hover { border-color: var(--accent); }
+.icon-btn.danger { color: var(--danger); border-color: rgba(255, 123, 123, 0.35); }
+.form-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.album-edition-tag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; margin-top: 6px; }
+.modal-meta-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.tracklist-detailed { list-style: none; margin: 10px 0 20px; padding: 0; border-top: 1px solid var(--border); }
+.tracklist-detailed li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 4px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.tracklist-detailed .t-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tracklist-detailed .t-num { color: var(--text-muted); font-size: 12px; min-width: 20px; }
+.tracklist-detailed .t-title { color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.tracklist-detailed .t-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; font-size: 12px; color: var(--text-muted); }
+.t-stars { color: #f5b942; letter-spacing: 1px; }
+
+@media (max-width: 768px) {
+  .form-two-col { grid-template-columns: 1fr; }
+  .mb-track-row { grid-template-columns: 28px 1fr; gap: 6px; }
+  .mb-track-row .track-dur-input, .mb-track-row .star-rating, .mb-track-row .mb-track-actions { grid-column: 2; }
+  .mb-track-row .mb-track-actions { justify-content: flex-start; }
+}
+
 /* ---------- TODAY'S QUOTE (profil.html) ---------- */
 .quote-card { position: relative; overflow: hidden; margin-bottom: 28px; padding: 30px 32px 26px; border-radius: var(--radius-lg); background: linear-gradient(145deg, rgba(238, 202, 166, 0.12), var(--surface) 62%); border: 1px solid var(--border-strong); }
 .quote-card[hidden] { display: none; }
